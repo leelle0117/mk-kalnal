@@ -373,15 +373,18 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 12px;
       cursor: pointer;
-      transition: all 0.25s ease;
+      transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+      -webkit-tap-highlight-color: transparent;
       text-align: left;
       line-height: 1.5;
     }
 
-    .option-btn:hover {
-      background: rgba(123, 104, 238, 0.1);
-      border-color: rgba(123, 104, 238, 0.3);
-      transform: translateX(4px);
+    @media (hover: hover) {
+      .option-btn:hover {
+        background: rgba(123, 104, 238, 0.1);
+        border-color: rgba(123, 104, 238, 0.3);
+        transform: translateX(4px);
+      }
     }
 
     .option-btn:active {
@@ -406,12 +409,14 @@
       font-size: 12px;
       font-weight: 700;
       color: var(--text-dim);
-      transition: all 0.25s ease;
+      transition: border-color 0.25s ease, background 0.25s ease, color 0.25s ease;
     }
 
-    .option-btn:hover .option-marker {
-      border-color: var(--wisteria);
-      color: var(--wisteria);
+    @media (hover: hover) {
+      .option-btn:hover .option-marker {
+        border-color: var(--wisteria);
+        color: var(--wisteria);
+      }
     }
 
     .option-btn.selected .option-marker {
@@ -1406,7 +1411,9 @@
     // ===== GO HOME =====
     function goHome() {
       currentQuestion = 0;
+      isTransitioning = false;
       Object.keys(characters).forEach(key => { scores[key] = 0; });
+      document.getElementById('questionContainer').innerHTML = '';
       showScreen('startScreen');
     }
 
@@ -1454,6 +1461,17 @@
     }
 
 // ===== INIT =====
+    // iOS Safari bfcache 복원 시 상태 초기화
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
+        currentQuestion = 0;
+        isTransitioning = false;
+        Object.keys(characters).forEach(key => { scores[key] = 0; });
+        document.getElementById('questionContainer').innerHTML = '';
+        showScreen('startScreen');
+      }
+    });
+
     init();
   </script>
 </body>
