@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>귀멸의 칼날 - 나에게 어울리는 캐릭터는?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0a0f;
+      --bg-card: #141420;
+      --crimson: #e7305b;
+      --crimson-dark: #b8243f;
+      --tanjiro-green: #2d6a4f;
+      --wisteria: #7b68ee;
+      --wisteria-light: #9370db;
+      --gold: #d4a853;
+      --text-primary: #f5f0e8;
+      --text-secondary: #a8a0b8;
+      --text-dim: #6b6580;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== WISTERIA PETALS ANIMATION ===== */
+    .petals-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .petal {
+      position: absolute;
+      top: -20px;
+      width: 12px;
+      height: 16px;
+      background: radial-gradient(ellipse at center, rgba(147, 112, 219, 0.8), rgba(123, 104, 238, 0.3));
+      border-radius: 50% 50% 50% 0;
+      animation: fall linear infinite;
+      opacity: 0;
+    }
+
+    @keyframes fall {
+      0% { opacity: 0; transform: translateY(-20px) rotate(0deg) translateX(0); }
+      10% { opacity: 0.7; }
+      90% { opacity: 0.5; }
+      100% { opacity: 0; transform: translateY(100vh) rotate(720deg) translateX(100px); }
+    }
+
+    /* ===== ICHIMATSU (CHECKERED) PATTERN ===== */
+    .ichimatsu-border {
+      background: repeating-conic-gradient(var(--tanjiro-green) 0% 25%, #1a1a2e 0% 50%) 0 0 / 16px 16px;
+      padding: 3px;
+    }
+
+    /* ===== APP CONTAINER ===== */
+    #app {
+      position: relative;
+      z-index: 1;
+      max-width: 520px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* ===== SCREENS ===== */
+    .screen {
+      display: none;
+      width: 100%;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(60px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideOut {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(-60px); }
+    }
+
+    /* ===== START SCREEN ===== */
+    #startScreen {
+      position: relative;
+      animation: fadeInOnly 0.5s ease-out;
+    }
+
+    @keyframes fadeInOnly {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    #startScreen::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        linear-gradient(to bottom,
+          rgba(10,10,15,0.6) 0%,
+          rgba(10,10,15,0.5) 30%,
+          rgba(10,10,15,0.55) 50%,
+          rgba(10,10,15,0.8) 75%,
+          rgba(10,10,15,0.95) 100%),
+        linear-gradient(to right,
+          rgba(10,10,15,0.5) 0%,
+          rgba(10,10,15,0.2) 20%,
+          rgba(10,10,15,0.2) 80%,
+          rgba(10,10,15,0.5) 100%),
+        url('images/poster.jpg') center 40% / 100% auto no-repeat,
+        linear-gradient(to bottom, #12101a 0%, #0a0a0f 100%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    @media (max-width: 600px) {
+      #startScreen::before {
+        background:
+          linear-gradient(to bottom,
+            rgba(10,10,15,0.55) 0%,
+            rgba(10,10,15,0.45) 20%,
+            rgba(10,10,15,0.5) 40%,
+            rgba(10,10,15,0.8) 70%,
+            rgba(10,10,15,0.95) 100%),
+          url('images/poster.jpg') center 30% / auto 85vh no-repeat,
+          linear-gradient(to bottom, #12101a 0%, #0a0a0f 100%);
+      }
+    }
+
+    .start-screen {
+      text-align: center;
+    }
+
+    .logo-area {
+      margin-bottom: 30px;
+    }
+
+    .katana-icon {
+      font-size: 52px;
+      margin-bottom: 16px;
+      display: block;
+      filter: drop-shadow(0 0 12px rgba(255,255,255,0.4));
+    }
+
+    .title-main {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 32px;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.3;
+      margin-bottom: 8px;
+      text-shadow: 0 0 30px rgba(231, 48, 91, 0.5), 0 2px 8px rgba(0,0,0,0.8);
+    }
+
+    .title-main .highlight {
+      color: var(--crimson);
+      display: block;
+      font-size: 38px;
+      text-shadow: 0 0 20px rgba(231, 48, 91, 0.6), 0 2px 8px rgba(0,0,0,0.8);
+    }
+
+    .title-sub {
+      font-size: 15px;
+      color: #d0c8e0;
+      margin-bottom: 12px;
+      font-weight: 300;
+      letter-spacing: 1px;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.8);
+    }
+
+    .title-desc {
+      font-size: 13px;
+      color: #9a92aa;
+      line-height: 1.8;
+      margin-bottom: 40px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+    }
+
+    .start-decoration {
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--wisteria), transparent);
+      margin: 0 auto 30px;
+    }
+
+    .start-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 48px;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 25px rgba(231, 48, 91, 0.5), 0 0 40px rgba(231, 48, 91, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .start-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .start-btn:hover::before {
+      left: 100%;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 35px rgba(231, 48, 91, 0.5);
+    }
+
+    .start-btn:active {
+      transform: translateY(0);
+    }
+
+    .info-badges {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 11px;
+      color: #a8a0b8;
+      border: 1px solid rgba(107, 101, 128, 0.4);
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(10, 10, 15, 0.5);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    }
+
+/* ===== QUIZ SCREEN ===== */
+    .quiz-screen {
+      width: 100%;
+    }
+
+    .progress-section {
+      width: 100%;
+      margin-bottom: 32px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .progress-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .progress-count {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 14px;
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .progress-bar-outer {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-bar-inner {
+      height: 100%;
+      background: linear-gradient(90deg, var(--crimson), var(--wisteria));
+      border-radius: 2px;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .question-card {
+      width: 100%;
+      animation: slideIn 0.4s ease-out;
+    }
+
+    .question-card.leaving {
+      animation: slideOut 0.3s ease-in forwards;
+    }
+
+    .question-number {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 13px;
+      color: var(--wisteria-light);
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .question-text {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.5;
+      color: var(--text-primary);
+      margin-bottom: 28px;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      padding: 16px 18px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: left;
+      line-height: 1.5;
+    }
+
+    .option-btn:hover {
+      background: rgba(123, 104, 238, 0.1);
+      border-color: rgba(123, 104, 238, 0.3);
+      transform: translateX(4px);
+    }
+
+    .option-btn:active {
+      transform: translateX(2px) scale(0.99);
+    }
+
+    .option-btn.selected {
+      background: rgba(231, 48, 91, 0.15);
+      border-color: var(--crimson);
+      transform: translateX(4px);
+    }
+
+    .option-marker {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-dim);
+      transition: all 0.25s ease;
+    }
+
+    .option-btn:hover .option-marker {
+      border-color: var(--wisteria);
+      color: var(--wisteria);
+    }
+
+    .option-btn.selected .option-marker {
+      border-color: var(--crimson);
+      background: var(--crimson);
+      color: white;
+    }
+
+    /* ===== LOADING SCREEN ===== */
+    .loading-screen {
+      text-align: center;
+    }
+
+    .loading-breath {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--crimson), transparent);
+      animation: breathe 2s ease-in-out infinite;
+      margin: 0 auto 30px;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(0.8); opacity: 0.4; box-shadow: 0 0 20px rgba(231, 48, 91, 0.3); }
+      50% { transform: scale(1.2); opacity: 0.9; box-shadow: 0 0 60px rgba(231, 48, 91, 0.6); }
+    }
+
+    .loading-text {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 18px;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+
+    .loading-sub {
+      font-size: 13px;
+      color: var(--text-dim);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    /* ===== RESULT SCREEN ===== */
+    .result-screen {
+      width: 100%;
+    }
+
+    .result-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .result-label {
+      font-size: 13px;
+      color: var(--wisteria-light);
+      letter-spacing: 2px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .result-title {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 16px;
+      color: var(--text-secondary);
+    }
+
+    .result-card {
+      width: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    .result-card-top {
+      padding: 40px 28px 28px;
+      text-align: center;
+      position: relative;
+    }
+
+    .result-card-top::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      opacity: 0.1;
+      background: repeating-conic-gradient(currentColor 0% 25%, transparent 0% 50%) 0 0 / 20px 20px;
+    }
+
+    .character-symbol {
+      font-size: 64px;
+      margin-bottom: 16px;
+      display: block;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+    }
+
+    .character-image {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: top center;
+      border: 3px solid rgba(255,255,255,0.25);
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      background: rgba(0,0,0,0.2);
+    }
+
+    .character-name-kr {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 32px;
+      font-weight: 900;
+      color: white;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .character-name-jp {
+      font-size: 14px;
+      color: rgba(255,255,255,0.7);
+      margin-top: 4px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .character-title {
+      font-size: 13px;
+      color: rgba(255,255,255,0.9);
+      margin-top: 10px;
+      padding: 4px 14px;
+      background: rgba(0,0,0,0.25);
+      border-radius: 20px;
+      display: inline-block;
+      position: relative;
+      z-index: 1;
+    }
+
+    .result-card-bottom {
+      background: var(--bg-card);
+      padding: 28px;
+    }
+
+    .result-description {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+    }
+
+    .result-traits {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .trait-tag {
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .result-breathing {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .breathing-icon {
+      font-size: 24px;
+    }
+
+    .breathing-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .breathing-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .breathing-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    /* ===== MATCH PERCENTAGE ===== */
+    .match-section {
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .match-title {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+
+    .match-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .match-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .match-name {
+      font-size: 13px;
+      color: var(--text-secondary);
+      min-width: 110px;
+      flex-shrink: 0;
+    }
+
+    .match-bar-outer {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .match-bar-inner {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .match-percent {
+      font-size: 12px;
+      color: var(--text-dim);
+      min-width: 36px;
+      text-align: right;
+      font-weight: 700;
+    }
+
+    /* ===== SHARE CAPTURE AREA ===== */
+    .capture-area {
+      width: 100%;
+      background: var(--bg-dark);
+      padding: 20px;
+      border-radius: 20px;
+    }
+
+    .share-toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(20, 20, 32, 0.95);
+      color: var(--text-primary);
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1px solid rgba(123, 104, 238, 0.3);
+      z-index: 100;
+      transition: transform 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .share-toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .btn-primary.sharing {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    /* ===== BUTTONS ===== */
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .btn-secondary {
+      flex: 1;
+      padding: 14px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+    }
+
+    .btn-primary {
+      flex: 1;
+      padding: 14px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(231, 48, 91, 0.4);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 400px) {
+      .title-main { font-size: 26px; }
+      .title-main .highlight { font-size: 32px; }
+      .question-text { font-size: 18px; }
+      .option-btn { padding: 14px 14px; font-size: 13px; }
+      .character-name-kr { font-size: 26px; }
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(123, 104, 238, 0.3); border-radius: 2px; }
+  </style>
+</head>
+<body>
+  <!-- Wisteria Petals -->
+  <div class="petals-container" id="petals"></div>
+
+  <div id="app">
+    <!-- ===== START SCREEN ===== -->
+    <div class="screen active" id="startScreen">
+      <div class="start-screen">
+        <div class="logo-area">
+          <span class="katana-icon">&#9876;&#65039;</span>
+          <div class="title-sub" style="margin-bottom:8px;">전집중 호흡!</div>
+          <div class="title-sub">&#x2500;&#x2500; &#xD574;&#xC758; &#xD638;&#xD761;&#xC744; &#xCC3E;&#xC544;&#xC11C; &#x2500;&#x2500;</div>
+          <h1 class="title-main">
+            &#xB098;&#xC5D0;&#xAC8C; &#xC5B4;&#xC6B8;&#xB9AC;&#xB294;
+            <span class="highlight">&#xADC0;&#xBA78;&#xC758; &#xCE7C;&#xB0A0;</span>
+            &#xCE90;&#xB9AD;&#xD130;&#xB294;?
+          </h1>
+        </div>
+        <div class="start-decoration"></div>
+        <p class="title-desc">
+          15&#xAC00;&#xC9C0; &#xC9C8;&#xBB38;&#xC744; &#xD1B5;&#xD574; &#xB2F9;&#xC2E0;&#xC758; &#xC131;&#xACA9;&#xACFC; &#xAC00;&#xC7A5; &#xC798; &#xB9DE;&#xB294;<br>
+          &#xADC0;&#xBA78;&#xC758; &#xCE7C;&#xB0A0; &#xB4F1;&#xC7A5;&#xC778;&#xBB3C;&#xC744; &#xCC3E;&#xC544;&#xBCF4;&#xC138;&#xC694;!
+        </p>
+        <button class="start-btn" onclick="startQuiz()">
+          &#xC2DC;&#xC791;&#xD558;&#xAE30;
+        </button>
+        <div class="info-badges">
+          <span class="badge">&#xD14C;&#xC2A4;&#xD2B8; 15&#xBB38;&#xD56D;</span>
+          <span class="badge">&#xC18C;&#xC694;&#xC2DC;&#xAC04; 1&#xBD84;</span>
+          <span class="badge">14&#xBA85;&#xC758; &#xCE90;&#xB9AD;&#xD130;</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== QUIZ SCREEN ===== -->
+    <div class="screen" id="quizScreen">
+      <div class="quiz-screen">
+        <div class="progress-section">
+          <div class="progress-info">
+            <span class="progress-text" id="progressText">&#xC9C8;&#xBB38;</span>
+            <span class="progress-count" id="progressCount">1 / 15</span>
+          </div>
+          <div class="progress-bar-outer">
+            <div class="progress-bar-inner" id="progressBar" style="width: 0%"></div>
+          </div>
+        </div>
+        <div id="questionContainer"></div>
+      </div>
+    </div>
+
+    <!-- ===== LOADING SCREEN ===== -->
+    <div class="screen" id="loadingScreen">
+      <div class="loading-screen">
+        <div class="loading-breath"></div>
+        <p class="loading-text">&#xB2F9;&#xC2E0;&#xC758; &#xD638;&#xD761;&#xC744; &#xBD84;&#xC11D; &#xC911;...</p>
+        <p class="loading-sub">&#xC804;&#xC9D1;&#xC911; &#xC0C1;&#xD0DC;&#xC5D0;&#xC11C; &#xCE90;&#xB9AD;&#xD130;&#xB97C; &#xCC3E;&#xACE0; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;</p>
+      </div>
+    </div>
+
+    <!-- ===== RESULT SCREEN ===== -->
+    <div class="screen" id="resultScreen">
+      <div class="result-screen" id="resultContent"></div>
+    </div>
+  </div>
+
+  <script>
+    // ===== CHARACTER DATA =====
+    const characters = {
+      tanjiro: {
+        name: "카마도 탄지로",
+        nameJp: "竈門炭治郎",
+        title: "귀살대 대원 | 해의 호흡",
+        symbol: "🌅",
+        image: "images/tanjiro.webp",
+        breathing: { icon: "☀️", name: "해의 호흡 (히노카미 카구라)" },
+        description: "당신은 따뜻한 마음의 소유자! 어떤 역경에서도 포기하지 않는 불굴의 끈기와, 적에게조차 공감하는 깊은 인간미가 최고의 무기입니다. 주변 사람들은 당신의 진심에 감화되어 자연스럽게 함께하게 됩니다.",
+        traits: ["공감능력", "끈기", "정의감", "가족애", "성실함"],
+        color1: "#2d6a4f",
+        color2: "#1a472a",
+        tagBg: "rgba(45, 106, 79, 0.25)",
+        tagColor: "#52b788",
+        barColor: "#2d6a4f"
+      },
+      nezuko: {
+        name: "카마도 네즈코",
+        nameJp: "竈門禰豆子",
+        title: "특수한 혈귀 | 폭혈",
+        symbol: "🎀",
+        image: "images/nezuko.webp",
+        breathing: { icon: "🔥", name: "혈귀술 - 폭혈" },
+        description: "사랑하는 사람을 위해서라면 무엇이든 할 수 있는 강인한 영혼의 소유자! 말보다 행동으로 보여주며, 조용하지만 누구보다 깊은 유대감과 보호 본능을 가지고 있습니다.",
+        traits: ["보호본능", "희생정신", "강인함", "순수함", "유대감"],
+        color1: "#e75480",
+        color2: "#8b2252",
+        tagBg: "rgba(231, 84, 128, 0.25)",
+        tagColor: "#f48fb1",
+        barColor: "#e75480"
+      },
+      zenitsu: {
+        name: "아가츠마 젠이츠",
+        nameJp: "我妻善逸",
+        title: "귀살대 대원 | 번개의 호흡",
+        symbol: "⚡",
+        image: "images/zenitsu.webp",
+        breathing: { icon: "⚡", name: "번개의 호흡 (뇌의 호흡)" },
+        description: "평소엔 겁이 많고 눈물이 많지만, 진짜 중요한 순간에 믿을 수 없는 집중력을 발휘하는 숨겨진 천재! '한 가지'를 끝까지 갈고 닦는 장인 정신의 소유자입니다.",
+        traits: ["숨겨진 재능", "충성심", "감성적", "집중력", "청각"],
+        color1: "#f0a500",
+        color2: "#c78000",
+        tagBg: "rgba(240, 165, 0, 0.25)",
+        tagColor: "#ffd54f",
+        barColor: "#f0a500"
+      },
+      inosuke: {
+        name: "하시비라 이노스케",
+        nameJp: "嘴平伊之助",
+        title: "귀살대 대원 | 짐승의 호흡",
+        symbol: "🐗",
+        image: "images/inosuke.webp",
+        breathing: { icon: "🐾", name: "짐승의 호흡 (수의 호흡)" },
+        description: "누구에게도 굽히지 않는 야생의 자유로운 영혼! 본능적인 감각과 끝없는 도전정신으로 어떤 상황도 돌파합니다. 거친 겉모습 뒤에 순수하고 정 많은 마음이 숨어있습니다.",
+        traits: ["자유분방", "경쟁심", "용맹", "촉각", "순수함"],
+        color1: "#2e86ab",
+        color2: "#1b5583",
+        tagBg: "rgba(46, 134, 171, 0.25)",
+        tagColor: "#64b5f6",
+        barColor: "#2e86ab"
+      },
+      rengoku: {
+        name: "렌고쿠 쿄쥬로",
+        nameJp: "煉獄杏寿郎",
+        title: "염주(炎柱) | 화염의 호흡",
+        symbol: "🔥",
+        image: "images/rengoku.webp",
+        breathing: { icon: "🔥", name: "화염의 호흡 (염의 호흡)" },
+        description: "불꽃처럼 뜨겁게 타오르는 열정의 소유자! \"마음을 불태워라!\"를 실천하며, 모두의 가슴에 불을 지피는 타고난 리더. 밝고 긍정적인 에너지로 어둠 속에서도 빛을 발합니다.",
+        traits: ["열정", "리더십", "신념", "밝은 에너지", "책임감"],
+        color1: "#ff4500",
+        color2: "#cc3700",
+        tagBg: "rgba(255, 69, 0, 0.25)",
+        tagColor: "#ff7043",
+        barColor: "#ff4500"
+      },
+      giyu: {
+        name: "토미오카 기유",
+        nameJp: "冨岡義勇",
+        title: "수주(水柱) | 물의 호흡",
+        symbol: "🌊",
+        image: "images/giyu.webp",
+        breathing: { icon: "💧", name: "물의 호흡 (수의 호흡)" },
+        description: "말은 적지만 행동으로 모든 것을 보여주는 진정한 강자. 차분한 표면 아래 뜨거운 의리와 정의감이 흐르고 있습니다. 자신만의 기준으로 묵묵히 옳은 길을 걸어갑니다.",
+        traits: ["과묵", "의리", "냉정함", "내면의 열정", "독립적"],
+        color1: "#2f6690",
+        color2: "#1d4466",
+        tagBg: "rgba(47, 102, 144, 0.25)",
+        tagColor: "#4fc3f7",
+        barColor: "#2f6690"
+      },
+      shinobu: {
+        name: "코쵸우 시노부",
+        nameJp: "胡蝶しのぶ",
+        title: "충주(蟲柱) | 벌레의 호흡",
+        symbol: "🦋",
+        image: "images/shinobu.webp",
+        breathing: { icon: "🦋", name: "벌레의 호흡 (충의 호흡)" },
+        description: "우아한 미소 뒤에 날카로운 지성을 숨긴 전략가. 겉으로는 부드럽지만 내면에 강한 의지와 분노를 품고, 자신만의 독창적인 방식으로 세상과 맞서 싸웁니다.",
+        traits: ["지적", "우아함", "전략적", "독립적", "이중성"],
+        color1: "#7b4e9e",
+        color2: "#5a3175",
+        tagBg: "rgba(123, 78, 158, 0.25)",
+        tagColor: "#ce93d8",
+        barColor: "#7b4e9e"
+      },
+      tengen: {
+        name: "우즈이 텐겐",
+        nameJp: "宇髄天元",
+        title: "음주(音柱) | 소리의 호흡",
+        symbol: "💎",
+        image: "images/tengen.webp",
+        breathing: { icon: "🎵", name: "소리의 호흡 (음의 호흡)" },
+        description: "화려함 그 자체! 어디서든 주목받는 압도적인 카리스마와 넘치는 자신감으로 세상을 무대 삼는 쇼맨입니다. 파티 리더이자, 동료를 끝까지 챙기는 따뜻한 면도 있습니다.",
+        traits: ["카리스마", "화려함", "자신감", "리더십", "음감"],
+        color1: "#c0392b",
+        color2: "#96281b",
+        tagBg: "rgba(192, 57, 43, 0.25)",
+        tagColor: "#ef5350",
+        barColor: "#c0392b"
+      },
+      mitsuri: {
+        name: "칸로지 미츠리",
+        nameJp: "甘露寺蜜璃",
+        title: "연주(恋柱) | 사랑의 호흡",
+        symbol: "💗",
+        image: "images/mitsuri.webp",
+        breathing: { icon: "💕", name: "사랑의 호흡 (연의 호흡)" },
+        description: "온 세상을 사랑으로 물들이는 긍정의 아이콘! 솔직한 감정 표현과 밝은 에너지로 주변을 행복하게 만듭니다. 그 안에 숨어있는 폭발적인 힘은 덤이죠!",
+        traits: ["사랑", "긍정적", "솔직함", "밝은 에너지", "식탐"],
+        color1: "#e84393",
+        color2: "#b8327a",
+        tagBg: "rgba(232, 67, 147, 0.25)",
+        tagColor: "#f06292",
+        barColor: "#e84393"
+      },
+      muichiro: {
+        name: "토키토 무이치로",
+        nameJp: "時透無一郎",
+        title: "하주(霞柱) | 안개의 호흡",
+        symbol: "🌫️",
+        image: "images/muichiro.webp",
+        breathing: { icon: "🌀", name: "안개의 호흡 (하의 호흡)" },
+        description: "안개처럼 몽환적이고 조용하지만, 그 안에 무한한 잠재력이 잠들어 있는 천재. 최연소 주가 된 압도적인 재능과, 맑고 순수한 영혼이 공존합니다.",
+        traits: ["천재성", "몽환적", "순수", "잠재력", "집중력"],
+        color1: "#5c7fa3",
+        color2: "#3d5a7c",
+        tagBg: "rgba(92, 127, 163, 0.25)",
+        tagColor: "#90caf9",
+        barColor: "#5c7fa3"
+      },
+      gyomei: {
+        name: "히메지마 교메이",
+        nameJp: "悲鳴嶼行冥",
+        title: "암주(岩柱) | 바위의 호흡",
+        symbol: "🪨",
+        image: "images/gyomei.webp",
+        breathing: { icon: "⛰️", name: "바위의 호흡 (암의 호흡)" },
+        description: "자비로운 마음과 흔들리지 않는 강인함을 동시에 가진 진정한 수호자. 눈물로 세상의 아픔에 공감하면서도, 바위처럼 단단한 의지로 소중한 것을 지켜냅니다.",
+        traits: ["자비", "강인함", "보호자", "감정적", "믿음"],
+        color1: "#6d6875",
+        color2: "#4a4453",
+        tagBg: "rgba(109, 104, 117, 0.25)",
+        tagColor: "#b0bec5",
+        barColor: "#6d6875"
+      },
+      sanemi: {
+        name: "시나즈가와 사네미",
+        nameJp: "不死川実弥",
+        title: "풍주(風柱) | 바람의 호흡",
+        symbol: "🌪️",
+        image: "images/sanemi.webp",
+        breathing: { icon: "💨", name: "바람의 호흡 (풍의 호흡)" },
+        description: "거친 바람처럼 날카롭고 격렬하지만, 그 모든 분노의 근원은 사랑하는 사람을 지키지 못한 아픔입니다. 상처투성이 겉모습 아래 누구보다 깊은 속정이 숨어있습니다.",
+        traits: ["거침없음", "속정", "강인한 의지", "보호욕", "전투력"],
+        color1: "#00897b",
+        color2: "#005b4f",
+        tagBg: "rgba(0, 137, 123, 0.25)",
+        tagColor: "#4db6ac",
+        barColor: "#00897b"
+      },
+      kanao: {
+        name: "츠유리 카나오",
+        nameJp: "栗花落カナヲ",
+        title: "귀살대 대원 | 꽃의 호흡",
+        symbol: "🌸",
+        image: "images/kanao.webp",
+        breathing: { icon: "🌺", name: "꽃의 호흡 (화의 호흡)" },
+        description: "조용한 관찰자에서 자신의 마음을 찾아가는 성장의 아이콘. 동전 던지기로 시작된 결정이, 스스로 마음의 목소리에 귀 기울이는 여정으로 이어집니다. 내면의 강인함이 빛납니다.",
+        traits: ["관찰력", "성장", "내면의 강인함", "시각", "조용한 결단"],
+        color1: "#ad6989",
+        color2: "#8a4c6b",
+        tagBg: "rgba(173, 105, 137, 0.25)",
+        tagColor: "#f48fb1",
+        barColor: "#ad6989"
+      },
+      muzan: {
+        name: "키부츠지 무잔",
+        nameJp: "鬼舞辻無惨",
+        title: "귀신의 시조 | 최강의 존재",
+        symbol: "🌑",
+        image: "images/muzan.webp",
+        breathing: { icon: "🩸", name: "혈귀술 - 전지전능" },
+        description: "완벽을 추구하는 카리스마의 화신! 어떤 분야든 정상만을 목표로 하는 끊임없는 야망과, 사소한 실수도 용납하지 않는 철저함이 당신의 원동력입니다.",
+        traits: ["완벽주의", "카리스마", "야망", "지배력", "냉철함"],
+        color1: "#1a1a2e",
+        color2: "#0d0d1a",
+        tagBg: "rgba(139, 0, 0, 0.25)",
+        tagColor: "#ef5350",
+        barColor: "#8b0000"
+      }
+    };
+
+    // ===== QUIZ QUESTIONS =====
+    const questions = [
+      {
+        question: "절체절명의 위기 상황! 당신의 첫 반응은?",
+        options: [
+          { text: "소중한 사람을 먼저 지킨다. 내 몸은 그 다음이다", scores: {tanjiro:3, nezuko:2, gyomei:1, sanemi:1} },
+          { text: "무섭지만... 눈을 감고 돌진한다! 어차피 해야 할 일!", scores: {zenitsu:3, kanao:2, mitsuri:1} },
+          { text: "생각할 시간 따위 없다! 일단 부딪혀본다!", scores: {inosuke:3, sanemi:2, tengen:1} },
+          { text: "침착하게 상황을 파악하고 최선의 수를 찾는다", scores: {shinobu:3, giyu:2, muzan:1, muichiro:1} },
+          { text: "모두를 이끌며 함께 대응한다. 혼자 싸울 수 없다!", scores: {rengoku:3, tengen:2, gyomei:1} }
+        ]
+      },
+      {
+        question: "친구들 사이에서 당신은 어떤 존재인가요?",
+        options: [
+          { text: "모두의 고민을 들어주는 따뜻한 상담사 역할", scores: {tanjiro:3, mitsuri:2, gyomei:1} },
+          { text: "조용히 함께 있어주는 든든한 존재", scores: {giyu:3, kanao:2, nezuko:2} },
+          { text: "분위기를 띄우는 파티의 무드메이커!", scores: {tengen:3, rengoku:2, mitsuri:1} },
+          { text: "다투면서도 결국 함께하는 라이벌 같은 친구", scores: {inosuke:3, sanemi:2, zenitsu:1} },
+          { text: "위기의 순간에만 반짝 빛나는 숨은 히어로", scores: {zenitsu:3, muichiro:2, kanao:1} }
+        ]
+      },
+      {
+        question: "당신이 가장 소중히 여기는 가치는 무엇인가요?",
+        options: [
+          { text: "가족, 그리고 사랑하는 사람들의 안전과 행복", scores: {tanjiro:3, nezuko:2, sanemi:2} },
+          { text: "정의와 신념. 옳다고 믿는 길을 끝까지 간다", scores: {rengoku:3, gyomei:2, giyu:1} },
+          { text: "자유와 도전! 매일이 새로운 모험이어야 한다", scores: {inosuke:3, tengen:2, muichiro:1} },
+          { text: "지식과 성장. 어제보다 나은 나 자신이 되고 싶다", scores: {shinobu:3, muichiro:2, kanao:1} },
+          { text: "사랑과 인연. 소중한 만남이 인생을 바꾼다", scores: {mitsuri:3, kanao:2, nezuko:1} }
+        ]
+      },
+      {
+        question: "경쟁이나 승부 상황에서의 당신 스타일은?",
+        options: [
+          { text: "상대의 약점을 분석하고 전략적으로 접근한다", scores: {shinobu:3, muzan:2, giyu:1} },
+          { text: "정면 돌파! 화끈하게 온 힘을 쏟아붓는다", scores: {rengoku:3, inosuke:2, sanemi:2} },
+          { text: "한 방에 모든 것을 건다. 기회는 한 번뿐!", scores: {zenitsu:3, muichiro:1, tengen:1} },
+          { text: "조용하지만 확실하게. 결과로 말한다", scores: {giyu:3, kanao:2, muichiro:2} },
+          { text: "팀워크와 협력으로 함께 이긴다", scores: {tanjiro:3, mitsuri:2, gyomei:1} }
+        ]
+      },
+      {
+        question: "혼자만의 자유 시간! 당신은 무엇을 하나요?",
+        options: [
+          { text: "자연 속에서 산책하거나 몸을 움직인다", scores: {tanjiro:3, gyomei:2, sanemi:1} },
+          { text: "집에서 편하게 쉬거나 낮잠을 즐긴다", scores: {zenitsu:3, muichiro:2, nezuko:1} },
+          { text: "새로운 도전! 안 해본 걸 찾아서 해본다", scores: {inosuke:3, tengen:2, rengoku:1} },
+          { text: "책을 읽거나 공부, 연구에 몰두한다", scores: {shinobu:3, kanao:2, muzan:1} },
+          { text: "맛있는 음식을 먹으며 행복한 시간을 보낸다", scores: {mitsuri:3, rengoku:2, zenitsu:1} }
+        ]
+      },
+      {
+        question: "누군가 당신을 심하게 화나게 했습니다. 당신의 반응은?",
+        options: [
+          { text: "화가 나지만 상대를 이해하려고 노력한다", scores: {tanjiro:3, gyomei:2, mitsuri:1} },
+          { text: "미소 뒤에 분노를 감추고... 나중에 확실히 갚는다", scores: {shinobu:3, muzan:2, kanao:1} },
+          { text: "참을 수 없다! 즉시 폭발하고 직접 따진다", scores: {inosuke:3, sanemi:3} },
+          { text: "거리를 두고 혼자만의 시간으로 마음을 정리한다", scores: {giyu:3, muichiro:2, kanao:1} },
+          { text: "눈물이 먼저 나오거나 걱정이 앞선다", scores: {zenitsu:3, nezuko:2, mitsuri:1} }
+        ]
+      },
+      {
+        question: "당신이 끌리는 분위기는?",
+        options: [
+          { text: "따뜻한 봄날, 꽃잎이 흩날리는 평화로운 풍경", scores: {mitsuri:3, kanao:2, nezuko:1} },
+          { text: "뜨거운 한여름 태양 아래의 짜릿한 에너지", scores: {rengoku:3, inosuke:2, tanjiro:1} },
+          { text: "차분한 가을, 고즈넉한 단풍길의 사색", scores: {giyu:3, shinobu:2, gyomei:1} },
+          { text: "고요한 겨울 밤, 눈 내리는 정적 속의 평온", scores: {muichiro:3, sanemi:2, kanao:1} },
+          { text: "화려한 네온과 음악이 가득한 밤의 도시", scores: {tengen:3, muzan:2, zenitsu:1} }
+        ]
+      },
+      {
+        question: "당신이 가장 두려워하는 것은?",
+        options: [
+          { text: "소중한 사람을 잃거나 지키지 못하는 것", scores: {tanjiro:3, sanemi:2, nezuko:2} },
+          { text: "나 자신의 나약함과 마주하는 것", scores: {zenitsu:3, kanao:2, giyu:1} },
+          { text: "무력하게 아무것도 할 수 없는 상황", scores: {gyomei:3, giyu:2, muichiro:1} },
+          { text: "속박당하고 자유를 잃는 것", scores: {inosuke:3, tengen:2, sanemi:1} },
+          { text: "목표를 이루지 못하고 실패하는 것", scores: {rengoku:2, shinobu:2, muzan:3} }
+        ]
+      },
+      {
+        question: "당신의 식사 스타일은?",
+        options: [
+          { text: "뭐든 맛있게 잘 먹는다! 감사하는 마음으로!", scores: {tanjiro:3, inosuke:2, rengoku:1} },
+          { text: "달콤한 디저트와 간식을 특히 좋아한다", scores: {mitsuri:3, zenitsu:2, nezuko:1} },
+          { text: "깔끔하고 정갈한 식사를 선호한다", scores: {shinobu:2, muzan:2, giyu:2} },
+          { text: "화려하고 푸짐한 상차림! 먹을 때도 파티처럼!", scores: {tengen:3, rengoku:2, mitsuri:1} },
+          { text: "먹는 것에 크게 관심 없다. 대충 때운다", scores: {muichiro:3, kanao:2, sanemi:1} }
+        ]
+      },
+      {
+        question: "\"리더를 맡아줘!\"라는 부탁이 들어왔습니다.",
+        options: [
+          { text: "좋다! 기꺼이 모두를 이끌겠다!", scores: {rengoku:3, tengen:3} },
+          { text: "필요하다면 맡겠다. 누군가는 해야 하니까", scores: {tanjiro:3, gyomei:2} },
+          { text: "리더보다는 혼자 자유롭게 움직이는 게 낫다", scores: {giyu:3, inosuke:2, muichiro:2} },
+          { text: "앞에 서기보다 뒤에서 실질적으로 돕고 싶다", scores: {shinobu:3, kanao:2, nezuko:2} },
+          { text: "절대 싫다! 그런 부담은... 무리무리무리!", scores: {zenitsu:3, mitsuri:2, sanemi:1} }
+        ]
+      },
+      {
+        question: "처음 만난 사람에게 당신은 어떤가요?",
+        options: [
+          { text: "따뜻하게 먼저 다가가고 말을 건다", scores: {tanjiro:3, mitsuri:3} },
+          { text: "경계하며 조용히 관찰한다. 쉽게 마음을 열지 않는다", scores: {sanemi:3, inosuke:2, muzan:1} },
+          { text: "무관심하게 지나친다. 필요하면 그때 말하면 된다", scores: {giyu:3, muichiro:3} },
+          { text: "예의 바르게 인사하되 적절한 거리를 유지한다", scores: {shinobu:3, kanao:2, gyomei:1} },
+          { text: "긴장하고 어색해한다. 마음은 열고 싶은데...", scores: {zenitsu:3, nezuko:2, kanao:1} }
+        ]
+      },
+      {
+        question: "큰 실패를 겪었을 때 당신의 반응은?",
+        options: [
+          { text: "반드시 다시 일어선다. 포기는 사전에 없다!", scores: {tanjiro:3, rengoku:3} },
+          { text: "좌절하지만... 결국 눈물 닦고 다시 해본다", scores: {zenitsu:3, kanao:2, mitsuri:1} },
+          { text: "냉정하게 원인을 분석하고 전략을 수정한다", scores: {shinobu:3, muzan:2, giyu:2} },
+          { text: "오히려 더 세게 부딪혀본다! 분해서라도!", scores: {inosuke:3, sanemi:3} },
+          { text: "주변 사람들의 격려와 도움으로 함께 극복한다", scores: {nezuko:2, mitsuri:2, gyomei:2} }
+        ]
+      },
+      {
+        question: "함께하고 싶은 이상적인 팀원은?",
+        options: [
+          { text: "서로를 믿고 등을 맡길 수 있는 신뢰의 동료", scores: {tanjiro:3, rengoku:2, gyomei:2} },
+          { text: "실력이 확실한 프로페셔널. 결과가 중요하다", scores: {giyu:3, shinobu:2, muzan:2} },
+          { text: "같이 있으면 웃음이 끊이지 않는 즐거운 사람", scores: {mitsuri:3, tengen:2, zenitsu:1} },
+          { text: "팀원? 필요 없다. 혼자가 편하다", scores: {inosuke:2, sanemi:2, muichiro:3} },
+          { text: "말은 없어도 서로를 깊이 이해하는 사람", scores: {kanao:3, nezuko:2, giyu:1} }
+        ]
+      },
+      {
+        question: "잠들기 전 마지막 생각은 주로?",
+        options: [
+          { text: "오늘 만난 사람들, 나눈 대화를 떠올린다", scores: {tanjiro:3, mitsuri:2, nezuko:1} },
+          { text: "내일의 계획과 이루고 싶은 목표를 정리한다", scores: {rengoku:2, shinobu:2, muzan:3} },
+          { text: "아무 생각 없이 스르르... 이미 잠들었다", scores: {muichiro:3, inosuke:3} },
+          { text: "과거의 기억들이 떠오르며 감상에 젖는다", scores: {giyu:2, sanemi:2, gyomei:2, kanao:1} },
+          { text: "걱정과 불안이 밀려온다... 내일은 괜찮을까?", scores: {zenitsu:3, nezuko:2, mitsuri:1} }
+        ]
+      },
+      {
+        question: "마지막 질문! 당신이 감추고 있는 진짜 모습은?",
+        options: [
+          { text: "밝은 웃음 뒤에 숨긴 깊은 슬픔과 외로움", scores: {tanjiro:2, shinobu:3, rengoku:1} },
+          { text: "겁쟁이처럼 보이지만 누구보다 용감한 마음", scores: {zenitsu:3, kanao:3} },
+          { text: "거칠어 보이지만 사실은 정이 넘치는 사람", scores: {inosuke:3, sanemi:3} },
+          { text: "차분해 보이지만 속은 누구보다 뜨겁게 타오른다", scores: {giyu:3, muichiro:2, gyomei:2} },
+          { text: "평범해 보이지만 남모르는 야망과 꿈이 있다", scores: {tengen:2, muzan:2, mitsuri:2, rengoku:1, nezuko:1} }
+        ]
+      }
+    ];
+
+    // ===== APP STATE =====
+    let currentQuestion = 0;
+    let scores = {};
+    let isTransitioning = false;
+
+    // ===== INITIALIZE =====
+    function init() {
+      createPetals();
+      Object.keys(characters).forEach(key => { scores[key] = 0; });
+    }
+
+    // ===== PETAL ANIMATION =====
+    function createPetals() {
+      const container = document.getElementById('petals');
+      for (let i = 0; i < 20; i++) {
+        const petal = document.createElement('div');
+        petal.className = 'petal';
+        petal.style.left = Math.random() * 100 + '%';
+        petal.style.animationDuration = (6 + Math.random() * 8) + 's';
+        petal.style.animationDelay = (Math.random() * 10) + 's';
+        petal.style.width = (8 + Math.random() * 8) + 'px';
+        petal.style.height = (10 + Math.random() * 10) + 'px';
+        petal.style.opacity = 0.3 + Math.random() * 0.4;
+        container.appendChild(petal);
+      }
+    }
+
+    // ===== SCREEN MANAGEMENT =====
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    // ===== START QUIZ =====
+    function startQuiz() {
+      currentQuestion = 0;
+      Object.keys(characters).forEach(key => { scores[key] = 0; });
+      showScreen('quizScreen');
+      renderQuestion();
+    }
+
+    // ===== RENDER QUESTION =====
+    function renderQuestion() {
+      const q = questions[currentQuestion];
+      const container = document.getElementById('questionContainer');
+      const progress = ((currentQuestion) / questions.length) * 100;
+
+      document.getElementById('progressBar').style.width = progress + '%';
+      document.getElementById('progressCount').textContent = `${currentQuestion + 1} / ${questions.length}`;
+
+      const markers = ['A', 'B', 'C', 'D', 'E'];
+
+      container.innerHTML = `
+        <div class="question-card" id="questionCard">
+          <div class="question-number">QUESTION ${currentQuestion + 1}</div>
+          <h2 class="question-text">${q.question}</h2>
+          <div class="options-list">
+            ${q.options.map((opt, i) => `
+              <button class="option-btn" onclick="selectOption(${i})" id="opt${i}">
+                <span class="option-marker">${markers[i]}</span>
+                <span>${opt.text}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // ===== SELECT OPTION =====
+    function selectOption(index) {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      const option = questions[currentQuestion].options[index];
+      const btn = document.getElementById('opt' + index);
+      btn.classList.add('selected');
+
+      // Add scores
+      Object.entries(option.scores).forEach(([char, score]) => {
+        scores[char] = (scores[char] || 0) + score;
+      });
+
+      setTimeout(() => {
+        const card = document.getElementById('questionCard');
+        card.classList.add('leaving');
+
+        setTimeout(() => {
+          currentQuestion++;
+          if (currentQuestion < questions.length) {
+            renderQuestion();
+          } else {
+            document.getElementById('progressBar').style.width = '100%';
+            document.getElementById('progressCount').textContent = `15 / 15`;
+            showLoading();
+          }
+          isTransitioning = false;
+        }, 300);
+      }, 400);
+    }
+
+    // ===== LOADING =====
+    function showLoading() {
+      showScreen('loadingScreen');
+      setTimeout(() => { showResult(); }, 2500);
+    }
+
+    // ===== CALCULATE RESULT =====
+    function getResult() {
+      let maxScore = 0;
+      let resultChar = 'tanjiro';
+
+      Object.entries(scores).forEach(([char, score]) => {
+        if (score > maxScore) {
+          maxScore = score;
+          resultChar = char;
+        }
+      });
+
+      // Get top 5 for chart
+      const sorted = Object.entries(scores)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+      const topScore = sorted[0][1];
+
+      return {
+        character: characters[resultChar],
+        charKey: resultChar,
+        topMatches: sorted.map(([key, score]) => ({
+          name: characters[key].name,
+          percent: Math.round((score / topScore) * 100),
+          color: characters[key].barColor
+        }))
+      };
+    }
+
+    // ===== SHOW RESULT =====
+    function showResult() {
+      const result = getResult();
+      const char = result.character;
+
+      const resultHTML = `
+        <div class="capture-area" id="captureArea">
+          <div class="result-header">
+            <div class="result-label">YOUR CHARACTER</div>
+            <div class="result-title">당신에게 어울리는 귀멸의 칼날 캐릭터</div>
+          </div>
+
+          <div class="result-card">
+            <div class="result-card-top" style="background: linear-gradient(135deg, ${char.color1}, ${char.color2}); color: ${char.color1};">
+              <img class="character-image" src="${char.image}" alt="${char.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+              <span class="character-symbol" style="display:none;">${char.symbol}</span>
+              <div class="character-name-kr">${char.name}</div>
+              <div class="character-name-jp">${char.nameJp}</div>
+              <div class="character-title">${char.title}</div>
+            </div>
+            <div class="result-card-bottom">
+              <p class="result-description">${char.description}</p>
+              <div class="result-traits">
+                ${char.traits.map(t => `<span class="trait-tag" style="background:${char.tagBg}; color:${char.tagColor};">#${t}</span>`).join('')}
+              </div>
+              <div class="result-breathing">
+                <span class="breathing-icon">${char.breathing.icon}</span>
+                <div class="breathing-info">
+                  <span class="breathing-label">사용 호흡법</span>
+                  <span class="breathing-name">${char.breathing.name}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="match-section">
+            <div class="match-title">캐릭터 유사도 TOP 5</div>
+            ${result.topMatches.map(m => `
+              <div class="match-item">
+                <span class="match-name">${m.name}</span>
+                <div class="match-bar-outer">
+                  <div class="match-bar-inner" style="width: 0%; background: ${m.color};" data-width="${m.percent}%"></div>
+                </div>
+                <span class="match-percent">${m.percent}%</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn-secondary" onclick="goHome()">다시 하기</button>
+          <button class="btn-primary" id="shareBtn" onclick="shareResult('${result.charKey}')">결과 공유하기</button>
+        </div>
+        <div class="share-toast" id="shareToast">이미지가 저장되었습니다!</div>
+      `;
+
+      document.getElementById('resultContent').innerHTML = resultHTML;
+      showScreen('resultScreen');
+
+      // Animate match bars
+      setTimeout(() => {
+        document.querySelectorAll('.match-bar-inner').forEach(bar => {
+          bar.style.width = bar.dataset.width;
+        });
+      }, 300);
+    }
+
+    // ===== GO HOME =====
+    function goHome() {
+      currentQuestion = 0;
+      Object.keys(characters).forEach(key => { scores[key] = 0; });
+      showScreen('startScreen');
+    }
+
+    // ===== SHARE =====
+    function showToast(message) {
+      const toast = document.getElementById('shareToast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); }, 2500);
+    }
+
+    async function shareResult(charKey) {
+      const char = characters[charKey];
+      const shareText = `${char.symbol} 귀멸의 칼날 캐릭터 테스트 결과\n\n나에게 어울리는 캐릭터는...\n${char.symbol} ${char.name} (${char.nameJp}) ${char.symbol}\n\n"${char.title}"\n${char.breathing.icon} ${char.breathing.name}\n${char.traits.map(t => '#' + t).join(' ')}\n\n🔗 나도 해보기!\nhttps://mk-kalnal.vercel.app`;
+
+      // Try Web Share API (mobile)
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: '귀멸의 칼날 캐릭터 테스트',
+            text: shareText
+          });
+          return;
+        } catch (e) {
+          if (e.name === 'AbortError') return;
+        }
+      }
+
+      // Fallback: copy to clipboard
+      try {
+        await navigator.clipboard.writeText(shareText);
+        showToast('결과가 클립보드에 복사되었습니다!');
+      } catch (e) {
+        // Final fallback: textarea copy
+        const ta = document.createElement('textarea');
+        ta.value = shareText;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('결과가 클립보드에 복사되었습니다!');
+      }
+    }
+
+// ===== INIT =====
+    init();
+  </script>
+</body>
+</html>
